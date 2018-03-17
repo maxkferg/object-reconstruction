@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 
 class Camera:
@@ -22,10 +21,3 @@ class Camera:
         X = np.linalg.solve(self.K, x)
         X = self.R.transpose().dot(X)
         return X / np.linalg.norm(X)
-
-    def project(self,points):
-        #camera.P.dot(voxels_h.T).T
-        print("Prjecting points",points.shape)
-        imgpts, jac = cv2.projectPoints(points, self.R, self.T, self.K, self.dist)
-        imgpts = np.squeeze(imgpts) # OpenCV returns shape Nx1x2
-        return imgpts
