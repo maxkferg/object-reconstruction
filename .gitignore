@@ -1,0 +1,10 @@
+*.pyc
+*.ckpt
+*.SUNet
+*.mp4
+*.pptx
+*.psd
+
+__pycache__
+
+results/*
