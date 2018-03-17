@@ -35,3 +35,9 @@ CALIBRATION = {
 		}
 	],
 }
+
+
+SILHOUETTE = {
+	"note1": "photos/note1/silhouette/sil0.png",
+	"note2": "photos/note2/silhouette/sil0.png"
+}

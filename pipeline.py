@@ -6,9 +6,12 @@ import urllib
 import requests
 import threading
 import numpy as np
+import matplotlib.pyplot as plt
+from skimage import color
 from threading import Thread, Event, ThreadError
-from config import CAMERAS, CALIBRATION
+from config import CAMERAS, CALIBRATION, SILHOUETTE
 from camera import Camera
+from carve import carve
 from utils import save_object, load_object
 from calibrate import collect_calibration_images, calibrate_camera_intrinsics
 from calibrate import take_extrinsic_photo, calibrate_camera_extrinsics
@@ -80,12 +83,24 @@ def calibrate():
 		draw_axis_on_image(camera, config[1]["file"], os.path.join(test_directory,"test8.png"))
 
 
-def run():
-	for camera in CAMERAS:
-		folder = os.path.join("calibration", camera.name)
+
+def pipeline():
+	cameras = []
+	silhouttes = []
+	for config in CAMERAS:
+		folder = os.path.join("calibration", config["name"])
 		extrinsic_file = os.path.join(folder, "extrinsics.pkl")
 		camera = load_object(extrinsic_file)
-
+		cameras.append(camera)
+		# Open the silhoutte
+		silhouette_file = SILHOUETTE[camera.name]
+		silhouette_img = plt.imread(silhouette_file)
+		silhouette_img = color.rgb2gray(silhouette_img)
+		silhouttes.append(silhouette_img)
+		camera.image = silhouette_img # HACK
+		camera.silhouette = silhouette_img # HACK
+	# Carve the voxels
+	carve(cameras,silhouttes)
 
 
 

@@ -19,6 +19,7 @@ class Camera():
 		self.name = name
 		self.flip = flip
 
+
 	def __str__(self):
 		print(self.name)
 		print("mtx:",self.mtx)
@@ -30,15 +31,41 @@ class Camera():
 			pass
 		return self.name
 
+
 	def set_intrinsics(self, mtx, dist):
 		"""Store the camera extrinsics"""
 		self.mtx = mtx
 		self.dist = dist
 
+
 	def set_extrinsics(self, r, t):
 		"""Store the camera extrinsics"""
 		self.r = r
 		self.t = t
+
+
+	def project_points(self, objp):
+		"""
+		Project world points onto camera image
+		inputs:
+			-  objp: Object points (3D)
+		returns:
+			- imgpts: Image points (2D)
+		"""
+		imgpts, _ = cv2.projectPoints(objp, self.r, self.t, self.mtx, self.dist)
+		return imgpts
+
+
+	def get_camera_direction(self):
+		"""Get the unit vector for the direction of the camera"""
+		R, _ = cv2.Rodrigues(self.r)
+		x = np.array([self.image.shape[1] / 2,
+			 self.image.shape[0] / 2,
+			 1]);
+		X = np.linalg.solve(self.mtx, x)
+		X = R.dot(X)
+		return X / np.linalg.norm(X)
+
 
 	def get_image(self, verbose=False):
 		"""Return an image from the camera"""
@@ -58,6 +85,7 @@ class Camera():
 			im = cv2.flip(im, 0)
 
 		return im
+
 
 	def show_image(self, verbose=False):
 		"""Display an image from the camera"""
