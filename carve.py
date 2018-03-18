@@ -2,20 +2,22 @@ import numpy as np
 import space_carving.plotting as plotting
 import space_carving.main as carving
 import matplotlib.pyplot as plt
-
+from segmentation.utils import figure2image
 
 
 def show_silhouette(camera, silhouette):
     """Show silhouettes"""
     plt.figure()
     plt.imshow(silhouette, cmap = 'gray')
-    plt.title('Silhouette from '+camera.name)
+    plt.title('Silhouette from ' + camera.name)
     plt.show()
+
 
 
 def carve(cameras,silhouettes):
     """
     Carve an object from voxels
+    Return a figure object (not shown)
     """
     debug = True
     estimate_better_bounds = False
@@ -50,5 +52,14 @@ def carve(cameras,silhouettes):
 
         print("Finished carving with",camera.name)
 
-    plotting.plot_surface(voxels)
+    return plotting.plot_surface(voxels)
+
+
+
+def get_carved_image(cameras, silhouettes):
+    """Return a image of the carved voxels"""
+    figure = carve(cameras,silhouettes)
+    return figure2image(figure)
+
+
 

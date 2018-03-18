@@ -7,6 +7,7 @@ Licensed under the MIT License (see LICENSE for details)
 Written by Waleed Abdulla
 """
 
+import cv2
 import sys
 import os
 import math
@@ -26,6 +27,29 @@ COCO_MODEL_URL = "https://github.com/matterport/Mask_RCNN/releases/download/v2.0
 ############################################################
 #  Bounding Boxes
 ############################################################
+
+
+def figure2image(fig):
+    """
+    @brief Convert a Matplotlib figure to a 4D numpy array with RGBA channels and return it
+    @param fig a matplotlib figure
+    @return a numpy 3D array of RGBA values
+    """
+    # draw the renderer
+    fig.tight_layout()
+    fig.canvas.draw()
+
+    # Get the RGBA buffer from the figure
+    w,h = fig.canvas.get_width_height()
+    buf = np.fromstring ( fig.canvas.tostring_argb(), dtype=np.uint8 )
+    buf.shape = (w, h, 4)
+
+    # canvas.tostring_argb give pixmap in ARGB mode. Roll the ALPHA channel to have it in RGBA mode
+    buf = np.roll ( buf, 3, axis = 2 )
+    buf = buf[:,:,:3] # RGB
+    buf = cv2.cvtColor(buf, cv2.COLOR_RGB2BGR) # BGR
+    return buf
+
 
 def extract_bboxes(mask):
     """Compute bounding boxes from masks.

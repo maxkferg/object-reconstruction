@@ -4,7 +4,10 @@
 *.mp4
 *.pptx
 *.psd
+*.avi
+*.h5
 
 __pycache__
 
 results/*
+*.avi

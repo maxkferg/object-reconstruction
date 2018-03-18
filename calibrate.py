@@ -58,12 +58,11 @@ def draw_axis(img, imgpts):
 
 
 
-def imshow(img):
+def imshow(img, scale=0.4):
     """Resize and display image
     Wait for enter to continue
     """
-    img = cv2.resize(img, None, fx=0.2, fy=0.2, interpolation=cv2.INTER_CUBIC)
-
+    img = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
     cv2.imshow('img',img)
     k = cv2.waitKey(0) & 0xff
     if k == 's':

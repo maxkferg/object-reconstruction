@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
+from mayavi import mlab
 
 
 def axis_equal(ax, X, Y, Z):
@@ -44,9 +45,18 @@ def plot_surface(voxels, voxel_size = 0.1):
             iz = uz == voxels[ii,2]
             V[iy, ix, iz] = 1
 
-    marching_cubes = measure.marching_cubes(V, 0, spacing=(voxel_size, voxel_size, voxel_size))
-    verts = marching_cubes[0]
-    faces = marching_cubes[1]
-    ax.plot_trisurf(verts[:, 0], verts[:,1], faces, verts[:, 2], lw=0, color='red')
-    axis_equal(ax, verts[:, 0], verts[:,1], verts[:,2])
-    plt.show()
+    #marching_cubes = measure.marching_cubes(V, 0, spacing=(voxel_size, voxel_size, voxel_size))
+    # Using pyplot
+    #verts = marching_cubes[0]
+    #faces = marching_cubes[1]
+    #ax.plot_trisurf(verts[:, 0], verts[:,1], faces, verts[:, 2], lw=0, color='red')
+    #axis_equal(ax, verts[:, 0], verts[:,1], verts[:,2])
+    #return fig
+
+    # With MAYAVI
+    verts, faces = marching_cubes(V, 0, spacing=(voxel_size, voxel_size, voxel_size))
+    mlab.triangular_mesh([vert[0] for vert in verts],
+                     [vert[1] for vert in verts],
+                     [vert[2] for vert in verts],
+                     faces)
+    mlab.show()

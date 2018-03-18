@@ -184,6 +184,8 @@ def carve(voxels, camera, silhouette):
     silhouette_filter = (camera.silhouette[xi, yi] == 1)
 
     # Find the indices of those voxels
+    print(voxel_index.shape)
+    print(silhouette_filter.shape)
     voxel_index = voxel_index[silhouette_filter]
 
     return voxels[voxel_index, :]
