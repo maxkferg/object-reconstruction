@@ -13,7 +13,7 @@ from threading import Thread, Event, ThreadError
 from config import CAMERAS, CALIBRATION, SILHOUETTE, VIDEOS
 from camera import Camera
 from carve import carve
-from utils import save_object, load_object, record
+from utils import save_object, load_object, record, get_video_writer
 from calibrate import collect_calibration_images, calibrate_camera_intrinsics
 from calibrate import take_extrinsic_photo, calibrate_camera_extrinsics
 from calibrate import draw_cube_on_chessboard
@@ -115,31 +115,56 @@ def carving():
 
 
 
-def record_on_all_cameras():
+def record_on_all_cameras(duration):
 	"""
 	Record a scene
 	Records on every camera
 	"""
 	cameras = get_calibrated_cameras()
+	n = len(cameras)
 	length = 10
 
 	# Define a lambda recording function
-	def start_recording(camera):
-		print("Thread %i started"%i)
-		record(camera, VIDEOS[camera.name], length)
-		print("Thread %i completed"%i)
+	#def start_recording(camera):
+	#		print("Thread %i started"%i)
+	#	record(camera, VIDEOS[camera.name], length)
+	#		print("Thread %i completed"%i)
 
-	pool = multiprocessing.Pool(processes=n)
-	pool.map(start_recording, cameras)
-	pool.close()
-	pool.join()
-	print('Finished recording!')
+	caps = []
+	outputs = []
+	start = time.time()
 
+	# Initialize the writer and recorder
+	for camera in cameras:
+		url = camera.url.rsplit("/",1)[0] + "/video"
+		cap = cv2.VideoCapture(camera.url)
+		width = cap.get(3)
+		height = cap.get(4)
+		outfile = VIDEOS[camera.name]
+		out = get_video_writer(outfile, width, height)
+		caps.append(cap)
+		outputs.append(out)
+		print("Recording video on ",camera.name)
+		print("Reading from url",url)
+		print("Saving video to",outfile)
 
+	while (time.time() - start) < duration:
+		for i in range(len(caps)):
+			camera = caps[i]
+			ret, frame = camera.read()
+			if ret is False:
+				raise ValueError()
+			outputs[i].write(frame)
+	print("Finished recording")
+
+	# Finished recording
+	[c.release() for c in caps]
+	[c.release() for c in outs]
 
 
 
 
 if __name__=="__main__":
 	#calibrate()
-	carving()
+	#carving()
+	record_on_all_cameras(20)
