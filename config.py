@@ -45,6 +45,6 @@ SILHOUETTE = {
 
 # Raw synchronized videos
 VIDEOS = {
-	"note1": "output/note1/videos/test1.png",
-	"note2": "output/note2/videos/test1.png"
+	"note1": "output/note1/videos/test1.avi",
+	"note2": "output/note2/videos/test1.avi"
 }

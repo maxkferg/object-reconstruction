@@ -153,6 +153,8 @@ def record_on_all_cameras(duration):
 		ret, frame = caps[i].read()
 		print(cameras[i].name,"returned",ret)
 
+	print("Recording will start in 60 seconds")
+	time.sleep(60)
 
 	while (time.time() - start) < duration:
 		for i in range(len(caps)):
@@ -161,6 +163,8 @@ def record_on_all_cameras(duration):
 			if ret is False:
 				print(cv2.getBuildInformation())
 				raise ValueError()
+			if cameras[i].flip:
+				frame = cv2.flip(frame, 0)
 			outputs[i].write(frame)
 	print("Finished recording")
 
@@ -174,4 +178,4 @@ def record_on_all_cameras(duration):
 if __name__=="__main__":
 	#calibrate()
 	#carving()
-	record_on_all_cameras(20)
+	record_on_all_cameras(30)
