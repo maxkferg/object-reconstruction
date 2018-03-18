@@ -98,6 +98,23 @@ def calibrate():
 		draw_axis_on_image(camera, calib[1]["file"], os.path.join(test_directory,"test8.png"))
 
 
+def carving():
+	cameras = []
+	silhouttes = []
+	cameras = get_calibrated_cameras()
+	for camera in cameras:
+		# Open the silhoutte
+		silhouette_file = SILHOUETTE[camera.name]
+		silhouette_img = plt.imread(silhouette_file)
+		silhouette_img = color.rgb2gray(silhouette_img)
+		silhouttes.append(silhouette_img)
+		camera.image = silhouette_img # HACK
+		camera.silhouette = silhouette_img # HACK
+	# Carve the voxels
+	carve(cameras,silhouttes)
+
+
+
 def record_on_all_cameras():
 	"""
 	Record a scene
@@ -112,37 +129,17 @@ def record_on_all_cameras():
 		record(camera, VIDEOS[camera.name], length)
 		print("Thread %i completed"%i)
 
-    pool = multiprocessing.Pool(processes=n)
-    pool.map(start_recording, cameras)
-    pool.close()
-    pool.join()
-    print('Finished recording!')
+	pool = multiprocessing.Pool(processes=n)
+	pool.map(start_recording, cameras)
+	pool.close()
+	pool.join()
+	print('Finished recording!')
 
 
-
-def pipeline():
-	cameras = []
-	silhouttes = []
-	cameras = get_calibrated_cameras()
-	for camera in cameras:
-		# Open the silhoutte
-		silhouette_file = SILHOUETTE[camera.name]
-		silhouette_img = plt.imread(silhouette_file)
-		silhouette_img = color.rgb2gray(silhouette_img)
-		silhouttes.append(silhouette_img)
-		camera.image = silhouette_img # HACK
-		camera.silhouette = silhouette_img # HACK
-
-		filename = os.path.join("photos", camera.name, "videos", "person.mp4")
-		#record(camera, filename, length=30)
-
-	# Carve the voxels
-	carve(cameras,silhouttes)
-	#masking.draw_mask_on_video("output.avi")
 
 
 
 
 if __name__=="__main__":
-	calibrate()
-	pipeline()
+	#calibrate()
+	carving()

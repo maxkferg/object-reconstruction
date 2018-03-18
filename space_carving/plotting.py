@@ -2,10 +2,12 @@ import numpy as np
 from numpy import sin, cos, pi
 from skimage import measure
 import matplotlib.pyplot as plt
+import vispy.io as io
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
-from mayavi import mlab
+#from mayavi import mlab
+from .axis import render
 
 
 def axis_equal(ax, X, Y, Z):
@@ -19,7 +21,7 @@ def axis_equal(ax, X, Y, Z):
     ax.set_zlim(mid_z - max_range, mid_z + max_range)
 
 
-def plot_surface(voxels, voxel_size = 0.1):
+def plot_surface(voxels, voxel_size = 0.1, is_render=False):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     # First grid the data
@@ -45,18 +47,23 @@ def plot_surface(voxels, voxel_size = 0.1):
             iz = uz == voxels[ii,2]
             V[iy, ix, iz] = 1
 
-    #marching_cubes = measure.marching_cubes(V, 0, spacing=(voxel_size, voxel_size, voxel_size))
+    #render(V)
+    marching_cubes = measure.marching_cubes_lewiner(V, 0, spacing=(voxel_size, voxel_size, voxel_size))
     # Using pyplot
-    #verts = marching_cubes[0]
-    #faces = marching_cubes[1]
-    #ax.plot_trisurf(verts[:, 0], verts[:,1], faces, verts[:, 2], lw=0, color='red')
-    #axis_equal(ax, verts[:, 0], verts[:,1], verts[:,2])
-    #return fig
+    verts = marching_cubes[0]
+    faces = marching_cubes[1]
+    normals = marching_cubes[2]
+    values = marching_cubes[3]
+    print('----')
+    print(verts.shape)
+    print(faces.shape)
+    print(normals.shape)
 
-    # With MAYAVI
-    verts, faces = marching_cubes(V, 0, spacing=(voxel_size, voxel_size, voxel_size))
-    mlab.triangular_mesh([vert[0] for vert in verts],
-                     [vert[1] for vert in verts],
-                     [vert[2] for vert in verts],
-                     faces)
-    mlab.show()
+    app, canvas = render(verts,normals,faces)
+    img = canvas.render()
+
+    if is_render:
+        io.write_png("wonderful.png",img)
+        app.run()
+
+    return img

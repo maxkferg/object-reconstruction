@@ -20,9 +20,9 @@ class VideoWriter():
 		self.temp = filename.strip('avi')+'png'
 
 		# Calculate the total video shape
-		width = cap.get(3)
-		height = cap.get(4)
-		temp = [np.zeros((h,w)) for i in range(N)]
+		width = int(cap[0].get(3))
+		height = int(cap[0].get(4))
+		temp = [np.zeros((height,width)) for i in range(N)]
 		h, w = self.stack(temp).shape
 
 		# Create the video writer
@@ -31,11 +31,11 @@ class VideoWriter():
 
 	def stack(self,images):
 		"""Stack multiple images together"""
-		if N==1:
+		if self.N==1:
 			image = images[0]
-		if N==2:
+		if self.N==2:
 			image = np.hstack(images)
-		if N==4:
+		if self.N==4:
 			im1 = np.hstack(images[:2])
 			im2 = np.hstack(images[2:])
 			image = np.vstack((im1,im2))
@@ -99,7 +99,8 @@ def render_videos():
 	model = masking.load_model()
 
 	# Load the video objects
-	cap = [cv2.VideoCapture(v) for v in videos]
+	cap = cv2.VideoCapture(videos[0])#[cv2.VideoCapture(v) for v in videos[1:]]
+	cap.read()
 
 	i = 0
 	N = len(cap)
@@ -114,7 +115,8 @@ def render_videos():
 	# Start iterating through frames
 	while all(c.isOpened() for c in cap):
 		# Read all the frames
-		output = [c.read() for c in cap]
+		cap[0].read()
+		output = [c.read() for c in cap[1:]]
 		rets = [i[1] for i in output]
 		frames = [i[0] for i in output]
 
@@ -164,5 +166,5 @@ def render_videos():
 
 
 if __name__=="__main__":
-	test()
-	#render_video_masks()
+	#test()
+	render_videos()

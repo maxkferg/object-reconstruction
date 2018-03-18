@@ -30,8 +30,8 @@ def carve(cameras,silhouettes):
     xlim, ylim, zlim = carving.get_voxel_bounds(cameras, estimate_better_bounds)
     print("bounds:", xlim, ylim, zlim)
     xlim = [-50.0107705 , 50.59380309]
-    ylim = [-100.907882,   20.91827464]
-    zlim = [-50.88477288763805, 52.23735373028762]
+    ylim = [-50.907882,   20.91827464]
+    zlim = [-20.88477288763805, 32.23735373028762]
 
     # This part is simply to test forming the initial voxel grid
     voxels, voxel_size = carving.form_initial_voxels(xlim, ylim, zlim, num_voxels)
@@ -58,8 +58,7 @@ def carve(cameras,silhouettes):
 
 def get_carved_image(cameras, silhouettes):
     """Return a image of the carved voxels"""
-    figure = carve(cameras,silhouettes)
-    return figure2image(figure)
+    return carve(cameras,silhouettes)
 
 
 
