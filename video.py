@@ -29,8 +29,8 @@ class VideoWriter():
 		self.temp = filename.strip('avi')+'png'
 
 		# Calculate the total video shape
-		self.width = int(cap[0].get(4))
-		self.height = int(cap[0].get(3))
+		self.width = int(cap[0].get(3))
+		self.height = int(cap[0].get(4))
 		temp = [np.zeros((self.height, self.width)) for i in range(N)]
 		h, w = self.stack(temp).shape
 
@@ -47,6 +47,7 @@ class VideoWriter():
 		if self.N==2:
 			image = np.vstack(images)
 		if self.N==4:
+			print("dims",[image.shape for image in images])
 			im1 = np.hstack(images[:2])
 			im2 = np.hstack(images[2:])
 			image = np.vstack((im1,im2))
@@ -170,13 +171,19 @@ def render_videos():
 		# Carve and render the voxels
 		try:
 			carved = carve.get_carved_image(cameras, sil)
-		except Exception:
-			print("Voxel carving failed")
+		except Exception as e:
+			print("Voxel carving failed",e)
 			continue
 
 		# Write all the videos
-		video_carve.write([carved])
-		video_summary.write([frames[0], masks[0], sil_imgs[0], carved[0]])
+		try:
+			video_carve.write([carved])
+			video_summary.write([frames[0], masks[0], sil_imgs[0], carved])
+		except Exception as e:
+			print("Video summary failed",e)
+			continue
+
+
 		print("Completed frame %i"%i)
 		i+=1
 

@@ -78,7 +78,9 @@ def draw_mask_on_image(result, image):
 	Return an image (numpy array)
 	"""
 	r = result
-	return visualize.draw_instances(image, r['rois'], r['masks'], r['class_ids'], CLASS_NAMES, r['scores'])
+	output = visualize.draw_instances(image, r['rois'], r['masks'], r['class_ids'], CLASS_NAMES, r['scores'])
+	cv2.imwrite('output/temp/mask.png',output)
+	return output
 
 
 def get_human_silhouette(result):
