@@ -8,7 +8,15 @@ import masking
 import calibrate
 import numpy as np
 import matplotlib.pyplot as plt
+from skimage import transform
 from pipeline import get_calibrated_cameras
+
+
+IMAGE_WIDTH = 5312
+IMAGE_HEIGHT = 2988
+
+def resize(image, desired_width, desired_height):
+	return cv2.resize(image, (desired_height, desired_width))
 
 
 class VideoWriter():
@@ -20,9 +28,9 @@ class VideoWriter():
 		self.temp = filename.strip('avi')+'png'
 
 		# Calculate the total video shape
-		width = int(cap[0].get(3))
-		height = int(cap[0].get(4))
-		temp = [np.zeros((height,width)) for i in range(N)]
+		self.width = int(cap[0].get(4))
+		self.height = int(cap[0].get(3))
+		temp = [np.zeros((self.height, self.width)) for i in range(N)]
 		h, w = self.stack(temp).shape
 
 		# Create the video writer
@@ -31,6 +39,8 @@ class VideoWriter():
 
 	def stack(self,images):
 		"""Stack multiple images together"""
+		for i in range(len(images)):
+			images[i] = resize(images[i], self.width, self.height)
 		if self.N==1:
 			image = images[0]
 		if self.N==2:
@@ -99,8 +109,7 @@ def render_videos():
 	model = masking.load_model()
 
 	# Load the video objects
-	cap = cv2.VideoCapture(videos[0])#[cv2.VideoCapture(v) for v in videos[1:]]
-	cap.read()
+	cap = [cv2.VideoCapture(v) for v in videos]
 
 	i = 0
 	N = len(cap)
@@ -116,9 +125,9 @@ def render_videos():
 	while all(c.isOpened() for c in cap):
 		# Read all the frames
 		cap[0].read()
-		output = [c.read() for c in cap[1:]]
-		rets = [i[1] for i in output]
-		frames = [i[0] for i in output]
+		output = [c.read() for c in cap]
+		rets = [i[0] for i in output]
+		frames = [i[1] for i in output]
 
 		if not all(rets):
 			print("Camera stopped working")
@@ -128,17 +137,28 @@ def render_videos():
 		results = [masking.process_image(model,f) for f in frames]
 
 		# Extract all of the masks
-		masks = [masking.draw_mask_on_image(results[i], frame[i]) for i in range(N)]
+		masks = [masking.draw_mask_on_image(results[i], frames[i]) for i in range(N)]
 
 		# Extract all the human silhouettes
 		sil = [masking.get_human_silhouette(results[i]) for i in range(N)]
 
-		# Comupte the OpenCV image versions
+		# Compute the OpenCV image versions
 		sil_imgs = [masking.convert_sil_to_image(s) for s in sil]
 
-		if not all(sil):
+		try:
+			[s[0] for s in sil]
+		except Exception:
 			print("Could not find person in every frame")
 			continue
+
+		# Write these for debugging
+		video_raw.write(frames)
+		video_mask.write(masks)
+		video_sil.write(sil_imgs)
+
+		# The carving script is expecting full size images
+		sil = [resize(s,IMAGE_WIDTH,IMAGE_HEIGHT) for s in sil]
+		assert sil[0].shape = (IMAGE_HEIGHT, IMAGE_WIDTH)
 
 		# Hack to pass dimensions through to carve
 		for i in range(len(cameras)):
@@ -146,12 +166,13 @@ def render_videos():
 			cameras[i].silhouette = sil[i]
 
 		# Carve and render the voxels
-		carved = carve.get_carved_image(cameras, sil)
+		try:
+			carved = carve.get_carved_image(cameras, sil)
+		except Exception:
+			print("Voxel carving failed")
+			continue
 
 		# Write all the videos
-		video_raw.write(frames)
-		video_mask.write(masks)
-		video_sil.write(sil_imgs)
 		video_carve.write([carved])
 		video_summary.write([frames[0], masks[0], sil_imgs[0], carved[0]])
 		print("Completed frame %i"%i)

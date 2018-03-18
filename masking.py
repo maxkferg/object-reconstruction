@@ -85,11 +85,11 @@ def get_human_silhouette(result):
 	"""
 	Return the silhouette that corrosponds to a person
 	"""
-	person_class = CLASS_NAMES.index('person')
+	person_class = CLASS_NAMES.index('chair')
 	try:
 		person_index = result['class_ids'].tolist().index(person_class)
 		return result['masks'][:, :, person_index]
-	except IndexError:
+	except ValueError:
 		print("Person not found in image")
 		return False
 
