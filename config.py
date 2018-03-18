@@ -1,7 +1,7 @@
 
 CAMERAS = [
 	{
-		"url": "http://10.34.188.203:8080/photo.jpg",
+		"url": "http://10.34.177.35:8080/photo.jpg",
 		"name": "note1",
 		"flip": True
 	},

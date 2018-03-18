@@ -137,21 +137,28 @@ def record_on_all_cameras(duration):
 	# Initialize the writer and recorder
 	for camera in cameras:
 		url = camera.url.rsplit("/",1)[0] + "/video"
+		print("Recording video on ",camera.name)
+		print("Reading from url",url)
 		cap = cv2.VideoCapture(camera.url)
 		width = cap.get(3)
 		height = cap.get(4)
 		outfile = VIDEOS[camera.name]
+		print("Saving video to",outfile)
 		out = get_video_writer(outfile, width, height)
 		caps.append(cap)
 		outputs.append(out)
-		print("Recording video on ",camera.name)
-		print("Reading from url",url)
-		print("Saving video to",outfile)
+
+	for i in range(len(cameras)):
+		print("Testing camera",cameras[i].name)
+		ret, frame = caps[i].read()
+		print(cameras[i].name,"returned",frame)
+
 
 	while (time.time() - start) < duration:
 		for i in range(len(caps)):
 			camera = caps[i]
 			ret, frame = camera.read()
+			print(ret)
 			if ret is False:
 				raise ValueError()
 			outputs[i].write(frame)

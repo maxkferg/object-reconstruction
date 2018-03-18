@@ -44,7 +44,7 @@ class VideoWriter():
 		if self.N==1:
 			image = images[0]
 		if self.N==2:
-			image = np.hstack(images)
+			image = np.vstack(images)
 		if self.N==4:
 			im1 = np.hstack(images[:2])
 			im2 = np.hstack(images[2:])
