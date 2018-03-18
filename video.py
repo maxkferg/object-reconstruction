@@ -17,7 +17,7 @@ IMAGE_WIDTH = 5312
 IMAGE_HEIGHT = 2988
 
 def resize(image, desired_width, desired_height):
-	return cv2.resize(image, (desired_height, desired_width))
+	return cv2.resize(image, (desired_width, desired_height))
 
 
 class VideoWriter():
@@ -144,14 +144,14 @@ def render_videos():
 		# Extract all the human silhouettes
 		sil = [masking.get_human_silhouette(results[i]) for i in range(N)]
 
-		# Compute the OpenCV image versions
-		sil_imgs = [masking.convert_sil_to_image(s) for s in sil]
-
 		try:
 			[s[0] for s in sil]
 		except Exception:
 			print("Could not find person in every frame")
 			continue
+
+		# Compute the OpenCV image versions
+		sil_imgs = [masking.convert_sil_to_image(s) for s in sil]
 
 		# Write these for debugging
 		video_raw.write(frames)
@@ -160,7 +160,7 @@ def render_videos():
 
 		# The carving script is expecting full size images
 		sil = [resize(s,IMAGE_WIDTH,IMAGE_HEIGHT) for s in sil]
-		assert sil[0].shape == (IMAGE_HEIGHT, IMAGE_WIDTH)
+		print('Sil shape', sil[0].shape)
 
 		# Hack to pass dimensions through to carve
 		for i in range(len(cameras)):

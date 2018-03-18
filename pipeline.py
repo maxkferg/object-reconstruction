@@ -115,7 +115,7 @@ def carving():
 
 
 
-def record_on_all_cameras(duration):
+def record_on_all_cameras(duration, debug=True):
 	"""
 	Record a scene
 	Records on every camera
@@ -132,7 +132,6 @@ def record_on_all_cameras(duration):
 
 	caps = []
 	outputs = []
-	start = time.time()
 
 	# Initialize the writer and recorder
 	for camera in cameras:
@@ -154,7 +153,8 @@ def record_on_all_cameras(duration):
 		print(cameras[i].name,"returned",ret)
 
 	print("Recording will start in 60 seconds")
-	time.sleep(60)
+	time.sleep(30)
+	start = time.time()
 
 	while (time.time() - start) < duration:
 		for i in range(len(caps)):
@@ -162,15 +162,19 @@ def record_on_all_cameras(duration):
 			ret, frame = camera.read()
 			if ret is False:
 				print(cv2.getBuildInformation())
-				raise ValueError()
+				raise ValueError("Could not get frame")
 			if cameras[i].flip:
 				frame = cv2.flip(frame, 0)
+			if debug:
+				cv2.imshow('frame%i'%i,frame)
+				if cv2.waitKey(1) & 0xFF == ord('q'):
+					break
 			outputs[i].write(frame)
 	print("Finished recording")
 
 	# Finished recording
-	[c.release() for c in caps]
 	[c.release() for c in outputs]
+	[c.release() for c in caps]
 
 
 
