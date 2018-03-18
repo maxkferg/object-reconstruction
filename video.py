@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import transform
 from pipeline import get_calibrated_cameras
+from config import VIDEOS
 
 
 IMAGE_WIDTH = 5312
@@ -103,7 +104,7 @@ def render_videos():
 	cameras = get_calibrated_cameras()
 
 	# The videos from each camera
-	videos = ["output.avi", "output.avi"]
+	videos = [VIDEOS[c.name] for c in cameras]
 
 	# Load the mask rcnn model
 	model = masking.load_model()
@@ -128,6 +129,7 @@ def render_videos():
 		output = [c.read() for c in cap]
 		rets = [i[0] for i in output]
 		frames = [i[1] for i in output]
+		print(frames[0].shape)
 
 		if not all(rets):
 			print("Camera stopped working")
@@ -158,7 +160,7 @@ def render_videos():
 
 		# The carving script is expecting full size images
 		sil = [resize(s,IMAGE_WIDTH,IMAGE_HEIGHT) for s in sil]
-		assert sil[0].shape = (IMAGE_HEIGHT, IMAGE_WIDTH)
+		assert sil[0].shape == (IMAGE_HEIGHT, IMAGE_WIDTH)
 
 		# Hack to pass dimensions through to carve
 		for i in range(len(cameras)):
