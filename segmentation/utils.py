@@ -19,6 +19,9 @@ import skimage.color
 import skimage.io
 import urllib.request
 import shutil
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 # URL from which to download the latest COCO trained weights
 COCO_MODEL_URL = "https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5"
@@ -33,21 +36,21 @@ def figure2image(fig):
     """
     @brief Convert a Matplotlib figure to a 4D numpy array with RGBA channels and return it
     @param fig a matplotlib figure
-    @return a numpy 3D array of RGBA values
+    @return a numpy 3D array of RGB values
     """
     # draw the renderer
     fig.tight_layout()
-    fig.canvas.draw()
+    canvas = FigureCanvas(fig)
+    canvas.draw()
 
     # Get the RGBA buffer from the figure
-    w,h = fig.canvas.get_width_height()
-    buf = np.fromstring ( fig.canvas.tostring_argb(), dtype=np.uint8 )
-    buf.shape = (w, h, 4)
+    w,h = canvas.get_width_height()
+    buf = np.fromstring ( canvas.tostring_argb(), dtype=np.uint8 )
+    buf = buf.reshape((h, w, 4))
 
     # canvas.tostring_argb give pixmap in ARGB mode. Roll the ALPHA channel to have it in RGBA mode
     buf = np.roll ( buf, 3, axis = 2 )
     buf = buf[:,:,:3] # RGB
-    buf = cv2.cvtColor(buf, cv2.COLOR_RGB2BGR) # BGR
     return buf
 
 

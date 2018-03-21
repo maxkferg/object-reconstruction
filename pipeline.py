@@ -181,5 +181,5 @@ def record_on_all_cameras(duration, debug=True):
 
 if __name__=="__main__":
 	#calibrate()
-	#carving()
-	record_on_all_cameras(30)
+	carving()
+	#record_on_all_cameras(30)

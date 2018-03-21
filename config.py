@@ -1,7 +1,7 @@
 
 CAMERAS = [
 	{
-		"url": "http://10.34.177.35:8080/photo.jpg",
+		"url": "http://10.34.188.203:8080/photo.jpg",
 		"name": "note1",
 		"flip": True
 	},
@@ -39,12 +39,12 @@ CALIBRATION = {
 
 # Silhouette images for testing
 SILHOUETTE = {
-	"note1": "output/note1/silhouette/sil0.png",
-	"note2": "output/note2/silhouette/sil0.png"
+	"note1": "output/note1/silhouette/sil1.png",
+	"note2": "output/note2/silhouette/sil1.png"
 }
 
 # Raw synchronized videos
 VIDEOS = {
-	"note1": "output/note1/videos/test1.avi",
-	"note2": "output/note2/videos/test1.avi"
+	"note1": "output/note1/videos/test2.avi",
+	"note2": "output/note2/videos/test2.avi"
 }

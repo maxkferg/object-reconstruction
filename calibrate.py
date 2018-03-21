@@ -3,7 +3,6 @@ import cv2
 import glob
 import time
 import numpy as np
-from space_carving.camera import Camera
 
 CALIBRATION_SIZE = (8,6)
 

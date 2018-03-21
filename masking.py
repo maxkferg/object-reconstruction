@@ -68,24 +68,33 @@ def load_model():
 
 
 def process_image(model, image):
-	"""Process an image with Mask RCNN. Return a results dict"""
-	results = model.detect([image], verbose=0)
+	"""Process an image with Mask RCNN.
+	Return a results dict
+	Input: BGR Image
+	Output: BGR Image
+	"""
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+	results = model.detect([image], verbose=0) # Input: RGB
 	return results[0]
 
 
 def draw_mask_on_image(result, image):
 	"""Draw the segmented results on an image
-	Return an image (numpy array)
+	Return the annotated input
+	Input: BGR Image
+	Output: BGR Image
 	"""
 	r = result
-	output = visualize.draw_instances(image, r['rois'], r['masks'], r['class_ids'], CLASS_NAMES, r['scores'])
-	cv2.imwrite('output/temp/mask.png',output)
-	return output
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+	mask = visualize.draw_instances(image, r['rois'], r['masks'], r['class_ids'], CLASS_NAMES, r['scores']) #BGR
+	mask = cv2.cvtColor(mask, cv2.COLOR_RGB2BGR)
+	return mask
 
 
 def get_human_silhouette(result):
 	"""
-	Return the silhouette that corrosponds to a person
+	Find the silhouette that corrosponds to a person
+	Return a single layer binary (black/white) mask
 	"""
 	person_class = CLASS_NAMES.index('person')
 	try:

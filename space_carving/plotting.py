@@ -1,13 +1,11 @@
 import numpy as np
-from numpy import sin, cos, pi
-from skimage import measure
 import matplotlib.pyplot as plt
 import vispy.io as io
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.patches import FancyArrowPatch
-from mpl_toolkits.mplot3d import proj3d
-#from mayavi import mlab
-from .axis import render
+from numpy import sin, cos, pi
+from skimage import measure
+from marching_cubes import march
+from .render import render
+
 
 
 def axis_equal(ax, X, Y, Z):
@@ -21,7 +19,7 @@ def axis_equal(ax, X, Y, Z):
     ax.set_zlim(mid_z - max_range, mid_z + max_range)
 
 
-def plot_surface(voxels, voxel_size = 0.1, is_render=False):
+def plot_surface(voxels, voxel_size = 0.1, smoothing=10, is_render=False):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     # First grid the data
@@ -47,20 +45,16 @@ def plot_surface(voxels, voxel_size = 0.1, is_render=False):
             iz = uz == voxels[ii,2]
             V[iy, ix, iz] = 1
 
-    #render(V)
-    marching_cubes = measure.marching_cubes_lewiner(V, 0, spacing=(voxel_size, voxel_size, voxel_size))
-    # Using pyplot
-    verts = marching_cubes[0]
-    faces = marching_cubes[1]
-    normals = marching_cubes[2]
-    values = marching_cubes[3]
-    print('----')
-    print(verts.shape)
-    print(faces.shape)
-    print(normals.shape)
+    # Algorithm expects a cube
+    m,n,p = V.shape
+    size = max(m,n,p)
+    volume = np.zeros((size, size, size))
+    volume[:m,:n,:p] = V
+    verts, normals, faces = march(volume, smoothing)
 
     app, canvas = render(verts,normals,faces)
     img = canvas.render()
+    img = img[:,:,:3] # Remove alpha
 
     if is_render:
         io.write_png("wonderful.png",img)

@@ -2,6 +2,7 @@
 Generate video resources for the presentation
 """
 import cv2
+import time
 import carve
 import skimage
 import masking
@@ -17,10 +18,15 @@ IMAGE_WIDTH = 5312
 IMAGE_HEIGHT = 2988
 
 def resize(image, desired_width, desired_height):
+	"""Resize an image"""
 	return cv2.resize(image, (desired_width, desired_height))
 
 
 class VideoWriter():
+	"""
+	Writes image frames to a video
+	Can subplot 1,2 or 4 videos.
+	"""
 
 	def __init__(self, filename, cap, N):
 		self.filename = filename
@@ -38,6 +44,7 @@ class VideoWriter():
 		print("Creating N={0} video with dimensions {1}x{2}".format(N,w,h))
 		self.video = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc('M','J','P','G'), 10, (w,h))
 
+
 	def stack(self,images):
 		"""Stack multiple images together"""
 		for i in range(len(images)):
@@ -53,11 +60,13 @@ class VideoWriter():
 			image = np.vstack((im1,im2))
 		return image
 
+
 	def write(self,images):
 		"""Write the images to the video and temp file"""
 		image = self.stack(images)
 		self.video.write(image)
 		cv2.imwrite(self.temp, image)
+
 
 	def release(self):
 		"""Release the video"""
@@ -68,16 +77,17 @@ class VideoWriter():
 def test():
 	"""
 	Test the entire pipeline on a single image
+	BGR representation is used exclusively
 	"""
 	model = masking.load_model()
-	frame = skimage.io.imread("calibration/note1/raw/15.png")
+	frame = cv2.imread("calibration/note1/raw/15.png") # Output: BGR
 	cameras = get_calibrated_cameras()
 
 	# Process all frames with mask-rcnn
-	result = masking.process_image(model, frame)
+	result = masking.process_image(model, frame) # Input: BGR
 
 	# Extract the mask
-	mask = masking.draw_mask_on_image(result, frame)
+	mask = masking.draw_mask_on_image(result, frame) # Input: BGR, Output BGR
 	cv2.imwrite("output/temp/mask.png", mask)
 	print('Mask image shape', mask.shape)
 
@@ -101,6 +111,11 @@ def test():
 
 
 def render_videos():
+	"""
+	Process videos using GPU acceleration
+	BGR Representation is used exclusively
+	"""
+
 	# Load the calibrated cameras
 	cameras = get_calibrated_cameras()
 
@@ -130,14 +145,15 @@ def render_videos():
 		output = [c.read() for c in cap]
 		rets = [i[0] for i in output]
 		frames = [i[1] for i in output]
-		print(frames[0].shape)
 
 		if not all(rets):
 			print("Camera stopped working")
 			break
 
 		# Process all frames with mask-rcnn
+		start = time.time()
 		results = [masking.process_image(model,f) for f in frames]
+		print("Segmentation took %.3f"%(time.time()-start))
 
 		# Extract all of the masks
 		masks = [masking.draw_mask_on_image(results[i], frames[i]) for i in range(N)]
@@ -170,15 +186,17 @@ def render_videos():
 
 		# Carve and render the voxels
 		try:
-			carved = carve.get_carved_image(cameras, sil)
+			carved = carve.get_carved_image(cameras, sil, verbose=True)
 		except Exception as e:
 			print("Voxel carving failed",e)
 			continue
 
 		# Write all the videos
 		try:
+			start = time.time()
 			video_carve.write([carved])
 			video_summary.write([frames[0], masks[0], sil_imgs[0], carved])
+			print("Video frame writing took %.3f"%(time.time-start()))
 		except Exception as e:
 			print("Video summary failed",e)
 			continue

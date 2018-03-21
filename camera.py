@@ -52,7 +52,9 @@ class Camera():
 		returns:
 			- imgpts: Image points (2D)
 		"""
-		imgpts, _ = cv2.projectPoints(objp, self.r, self.t, self.mtx, self.dist)
+		dist = np.copy(self.dist)
+		dist[-1] = 0
+		imgpts, _ = cv2.projectPoints(objp, self.r, self.t, self.mtx, dist)
 		return imgpts
 
 
