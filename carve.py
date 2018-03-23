@@ -1,3 +1,4 @@
+import cv2
 import time
 import numpy as np
 import space_carving.plotting as plotting
@@ -15,7 +16,7 @@ def show_silhouette(camera, silhouette):
 
 
 
-def carve(cameras,silhouettes):
+def carve(cameras, silhouettes):
     """
     Carve an object from voxels
     Return a figure object (not shown)
@@ -30,9 +31,9 @@ def carve(cameras,silhouettes):
     num_voxels = 6e6
     xlim, ylim, zlim = carving.get_voxel_bounds(cameras, estimate_better_bounds)
     print("bounds:", xlim, ylim, zlim)
-    xlim = [-100.0107705 , 100.59380309]
-    ylim = [-100.907882,   100.91827464]
-    zlim = [-30.884772,   30.2373537302]
+    xlim = [-80.0107705 , 80.59380309]
+    ylim = [-80.907882,   80.91827464]
+    zlim = [-80.884772,   80.2373537302]
 
     # This part is simply to test forming the initial voxel grid
     voxels, voxel_size = carving.form_initial_voxels(xlim, ylim, zlim, num_voxels)
@@ -59,7 +60,8 @@ def get_carved_image(cameras, silhouettes, verbose=True, debug=True):
     print("Voxel carving took %.3f"%(time.time()-start))
 
     start = time.time()
-    image = plotting.plot_surface(voxels, debug=debug)
+    image = plotting.plot_surface([voxels], smoothing=15, is_render=debug)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     print("Voxel rendering took %.3f"%(time.time()-start))
 
     return image
