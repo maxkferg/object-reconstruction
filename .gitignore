@@ -6,8 +6,9 @@
 *.psd
 *.avi
 *.h5
+*.avi
+*.mov
 
 __pycache__
 
-results/*
-*.avi
+
