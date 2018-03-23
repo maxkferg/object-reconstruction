@@ -5,7 +5,7 @@ Mask R-CNN to generate silhouettes and voxel coding to generate
 volumes.
 
 This code was written for a CS 231A class project.
-For details see the `project.pdf` file.
+For details see the `docs/paper.pdf` file.
 
 ## Calibration
 Each camera must first be calibrated.
@@ -35,8 +35,8 @@ python3 video.py
 ```
 
 ## Examples
-![Single Person](results/example.png)
-![Person and chair](results/example2.png)
+![Single Person](docs/example.png)
+![Person and chair](docs/example2.png)
 
 ## License
 MIT
