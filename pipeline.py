@@ -10,9 +10,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import color
 from threading import Thread, Event, ThreadError
-from config import CAMERAS, CALIBRATION, SILHOUETTE, VIDEOS
+from config import CAMERAS, CALIBRATION, SILHOUETTE, VIDEOS_OUT, OBJECTS
 from camera import Camera
-from carve import carve
+from space_carving.main import Renderer
+from carve import carve, get_carved_image
 from utils import save_object, load_object, record, get_video_writer
 from calibrate import collect_calibration_images, calibrate_camera_intrinsics
 from calibrate import take_extrinsic_photo, calibrate_camera_extrinsics
@@ -100,18 +101,46 @@ def calibrate():
 
 def carving():
 	cameras = []
-	silhouttes = []
+	silhouettes = []
 	cameras = get_calibrated_cameras()
 	for camera in cameras:
 		# Open the silhoutte
 		silhouette_file = SILHOUETTE[camera.name]
 		silhouette_img = plt.imread(silhouette_file)
 		silhouette_img = color.rgb2gray(silhouette_img)
-		silhouttes.append(silhouette_img)
+		silhouettes.append(silhouette_img)
 		camera.image = silhouette_img # HACK
 		camera.silhouette = silhouette_img # HACK
 	# Carve the voxels
-	carve(cameras,silhouttes)
+	get_carved_image(cameras, silhouettes, verbose=True, debug=True)
+
+
+
+def carving_all_models():
+	app = Renderer()
+	colors = [(1,0,0),(0,0,1)]
+	translate = [[0, 0, 1.0], [1, 1.5, 0.4]]
+	cameras = get_calibrated_cameras()
+
+	for i,ob in enumerate(OBJECTS):
+		silhouettes = []
+		meshes = []
+		for camera in cameras:
+			# Open the silhoutte
+			silhouette_file = OBJECTS[ob][camera.name]
+			silhouette_img = plt.imread(silhouette_file)
+			silhouette_img = color.rgb2gray(silhouette_img)
+			silhouettes.append(silhouette_img)
+			camera.image = silhouette_img # HACK
+			camera.silhouette = silhouette_img # HACK
+			print("Opened", silhouette_file)
+			print("Size", silhouette_img.shape)
+		# Carve the voxels
+		voxels = carve(cameras, silhouettes)
+		app.draw_voxels(voxels, colors[i], translate[i])
+	# Show the models
+	app.draw_checkerboard()
+	app.run()
 
 
 
@@ -122,7 +151,6 @@ def record_on_all_cameras(duration, debug=True):
 	"""
 	cameras = get_calibrated_cameras()
 	n = len(cameras)
-	length = 10
 
 	# Define a lambda recording function
 	#def start_recording(camera):
@@ -141,7 +169,7 @@ def record_on_all_cameras(duration, debug=True):
 		cap = cv2.VideoCapture(url)
 		width = cap.get(3)
 		height = cap.get(4)
-		outfile = VIDEOS[camera.name]
+		outfile = VIDEOS_OUT[camera.name]
 		print("Saving video to",outfile)
 		out = get_video_writer(outfile, width, height)
 		caps.append(cap)
@@ -152,17 +180,24 @@ def record_on_all_cameras(duration, debug=True):
 		ret, frame = caps[i].read()
 		print(cameras[i].name,"returned",ret)
 
-	print("Recording will start in 60 seconds")
-	time.sleep(30)
+	print("Recording will start in 40 seconds")
+	time.sleep(40)
 	start = time.time()
 
 	while (time.time() - start) < duration:
+		rets = []
+		frames = []
+		# Read frames
 		for i in range(len(caps)):
 			camera = caps[i]
 			ret, frame = camera.read()
-			if ret is False:
-				print(cv2.getBuildInformation())
-				raise ValueError("Could not get frame")
+			frames.append(frame)
+			rets.append(ret)
+		if not all(rets):
+			print("Unable to get frames")
+			continue
+		# Write frames
+		for i in range(len(caps)):
 			if cameras[i].flip:
 				frame = cv2.flip(frame, 0)
 			if debug:
@@ -181,5 +216,6 @@ def record_on_all_cameras(duration, debug=True):
 
 if __name__=="__main__":
 	#calibrate()
-	carving()
-	#record_on_all_cameras(30)
+	#carving()
+	carving_all_models()
+	#record_on_all_cameras(60, debug=False)

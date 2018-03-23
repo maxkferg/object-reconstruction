@@ -1,6 +1,7 @@
 """
 Generate video resources for the presentation
 """
+import os
 import cv2
 import time
 import carve
@@ -11,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import transform
 from pipeline import get_calibrated_cameras
-from config import VIDEOS
+from config import VIDEOS_IN, RESULTS_DIR
 
 
 IMAGE_WIDTH = 5312
@@ -106,7 +107,7 @@ def test():
 
 	# Carve and render the voxels
 	silhouettes = [sil for _ in cameras]
-	carved = carve.get_carved_image(cameras, silhouettes)
+	carved = carve.get_carved_image(cameras, silhouettes, debug=True)
 	cv2.imwrite("output/temp/carved.png", carved)
 
 
@@ -120,7 +121,7 @@ def render_videos():
 	cameras = get_calibrated_cameras()
 
 	# The videos from each camera
-	videos = [VIDEOS[c.name] for c in cameras]
+	videos = [VIDEOS_IN[c.name] for c in cameras]
 
 	# Load the mask rcnn model
 	model = masking.load_model()
@@ -132,16 +133,15 @@ def render_videos():
 	N = len(cap)
 
 	# Create the output files
-	video_raw = VideoWriter("output/videos/raw.avi", cap, N)
-	video_mask = VideoWriter("output/videos/mask.avi", cap, N)
-	video_sil = VideoWriter("output/videos/sil.avi", cap, N)
-	video_carve = VideoWriter("output/videos/carve.avi", cap, 1)
-	video_summary = VideoWriter("output/videos/summary.avi", cap, 4)
+	video_raw = VideoWriter(os.path.join(RESULTS_DIR,"raw.avi"), cap, N)
+	video_mask = VideoWriter(os.path.join(RESULTS_DIR,"mask.avi"), cap, N)
+	video_sil = VideoWriter(os.path.join(RESULTS_DIR,"sil.avi"), cap, N)
+	video_carve = VideoWriter(os.path.join(RESULTS_DIR,"carve.avi"), cap, 1)
+	video_summary = VideoWriter(os.path.join(RESULTS_DIR,"summary.avi"), cap, 4)
 
 	# Start iterating through frames
 	while all(c.isOpened() for c in cap):
 		# Read all the frames
-		cap[0].read()
 		output = [c.read() for c in cap]
 		rets = [i[0] for i in output]
 		frames = [i[1] for i in output]
@@ -177,7 +177,6 @@ def render_videos():
 
 		# The carving script is expecting full size images
 		sil = [resize(s,IMAGE_WIDTH,IMAGE_HEIGHT) for s in sil]
-		print('Sil shape', sil[0].shape)
 
 		# Hack to pass dimensions through to carve
 		for i in range(len(cameras)):
@@ -186,7 +185,7 @@ def render_videos():
 
 		# Carve and render the voxels
 		try:
-			carved = carve.get_carved_image(cameras, sil, verbose=True)
+			carved = carve.get_carved_image(cameras, sil, debug=False)
 		except Exception as e:
 			print("Voxel carving failed",e)
 			continue
@@ -196,7 +195,7 @@ def render_videos():
 			start = time.time()
 			video_carve.write([carved])
 			video_summary.write([frames[0], masks[0], sil_imgs[0], carved])
-			print("Video frame writing took %.3f"%(time.time-start()))
+			print("Video frame writing took %.3f"%(time.time()-start))
 		except Exception as e:
 			print("Video summary failed",e)
 			continue
@@ -214,5 +213,5 @@ def render_videos():
 
 
 if __name__=="__main__":
-	#test()
+	test()
 	render_videos()

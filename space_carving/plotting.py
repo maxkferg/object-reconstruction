@@ -1,3 +1,4 @@
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 import vispy.io as io
@@ -20,8 +21,6 @@ def axis_equal(ax, X, Y, Z):
 
 
 def plot_surface(voxels, voxel_size = 0.1, smoothing=10, is_render=False):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
     # First grid the data
     res = np.amax(voxels[1,:] - voxels[0,:])
     ux = np.unique(voxels[:,0])
@@ -50,14 +49,16 @@ def plot_surface(voxels, voxel_size = 0.1, smoothing=10, is_render=False):
     size = max(m,n,p)
     volume = np.zeros((size, size, size))
     volume[:m,:n,:p] = V
+    start = time.time()
     verts, normals, faces = march(volume, smoothing)
+    print("Marching_cubes took %.3f seconds"%(time.time()-start))
 
     app, canvas = render(verts,normals,faces)
     img = canvas.render()
     img = img[:,:,:3] # Remove alpha
 
     if is_render:
-        io.write_png("wonderful.png",img)
+        io.write_png("example.png",img)
         app.run()
 
     return img

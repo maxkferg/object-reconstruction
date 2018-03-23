@@ -53,38 +53,38 @@ CALIBRATION = {
 
 # Silhouette images for testing
 SILHOUETTE = {
-	"note1": "output/note1/silhouette/sil1.png",
-	"note2": "output/note2/silhouette/sil2.png"
-	"note3": "output/note3/silhouette/sil2.png"
+	"note1": "results/note1/silhouette/sil1.png",
+	"note2": "results/note2/silhouette/sil2.png"
+	"note3": "results/note3/silhouette/sil2.png"
 }
 
 
 OBJECTS = {
 	"person": {
-		"note1": "output/note1/silhouette/sil-person-note1.png",
-		"note2": "output/note2/silhouette/sil-person-note2.png"
-		"note3": "output/note3/silhouette/sil-person-note3.png"
+		"note1": "results/note1/silhouette/sil-person-note1.png",
+		"note2": "results/note2/silhouette/sil-person-note2.png"
+		"note3": "results/note3/silhouette/sil-person-note3.png"
 	},
 	"chair": {
-		"note1": "output/note1/silhouette/sil-chair-note1.png",
-		"note2": "output/note2/silhouette/sil-chair-note2.png"
-		"note3": "output/note2/silhouette/sil-chair-note3.png"
+		"note1": "results/note1/silhouette/sil-chair-note1.png",
+		"note2": "results/note2/silhouette/sil-chair-note2.png"
+		"note3": "results/note2/silhouette/sil-chair-note3.png"
 	}
 }
 
 # Load videos from here for pipeline
 VIDEOS_IN = {
-	"note1": "output/note1/videos/test2.avi",
-	"note2": "output/note2/videos/test2.avi"
-	"note3": "output/note3/videos/test2.avi"
+	"note1": "results/note1/videos/test2.avi",
+	"note2": "results/note2/videos/test2.avi"
+	"note3": "results/note3/videos/test2.avi"
 }
 
 # Write results to here
-RESULTS_DIR = "output/videos/test"
+RESULTS_DIR = "results/videos/test"
 
 # Raw synchronized videos
 VIDEOS_OUT = {
-	"note1": "output/note1/videos/test3.avi",
-	"note2": "output/note2/videos/test3.avi"
-	"note3": "output/note3/videos/test3.avi"
+	"note1": "results/note1/videos/test3.avi",
+	"note2": "results/note2/videos/test3.avi"
+	"note3": "results/note3/videos/test3.avi"
 }
