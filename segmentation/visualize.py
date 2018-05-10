@@ -62,6 +62,18 @@ def random_colors(N, bright=True):
     return colors
 
 
+def constant_colors(N, bright=True):
+    """
+    Generate random colors.
+    To get visually distinct colors, generate them in HSV space then
+    convert to RGB.
+    """
+    brightness = 1.0 if bright else 0.7
+    hsv = [(i / N, 1, brightness) for i in range(N)]
+    colors = list(map(lambda c: colorsys.hsv_to_rgb(*c), hsv))
+    return colors
+
+
 def apply_mask(image, mask, color, alpha=0.5):
     """Apply the given mask to the image.
     """
@@ -407,7 +419,7 @@ def draw_boxes(image, boxes=None, refined_boxes=None,
         _, ax = plt.subplots(1, figsize=(12, 12))
 
     # Generate random colors
-    colors = random_colors(N)
+    colors = constant_colors(N)
 
     # Show area outside image boundaries.
     margin = image.shape[0] // 10
