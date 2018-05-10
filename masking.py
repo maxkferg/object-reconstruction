@@ -4,9 +4,7 @@ import sys
 import random
 import math
 import numpy as np
-import skimage.io
 import matplotlib
-import matplotlib.pyplot as plt
 
 from utils import get_video_writer
 from segmentation import coco
@@ -112,19 +110,19 @@ def convert_sil_to_image(sil):
 
 
 
-def draw_mask_on_video(model, input_file, output_file):
+def draw_mask_on_video(model, cap, output_file):
 	"""
 	Draw a mask on every frame and display the video
 	"""
-	cap = cv2.VideoCapture(input_file)
 	out = None
 
 	while(cap.isOpened()):
-		print("Reading image from",input_file)
+		print("Reading input image")
 		ret, frame = cap.read()
 
 		print("Drawing masks on frames")
-		img = draw_mask_on_frames(model, frame)
+		result = process_image(model, frame)
+		img = draw_mask_on_image(result, frame)
 
 		if out is None:
 			height = img.shape[0]

@@ -20,7 +20,6 @@ import skimage.io
 import urllib.request
 import shutil
 import matplotlib
-matplotlib.use('Agg')
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 # URL from which to download the latest COCO trained weights
