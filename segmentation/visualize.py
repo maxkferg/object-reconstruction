@@ -107,7 +107,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         _, ax = plt.subplots(1, figsize=figsize)
 
     # Generate random colors
-    colors = random_colors(N)
+    colors = constant_colors(N)
 
     # Show area outside image boundaries.
     height, width = image.shape[:2]
@@ -182,7 +182,7 @@ def draw_instances(image, boxes, masks, class_ids, class_names,
     figure, ax = plt.subplots(1, figsize=figsize)
 
     # Generate random colors
-    colors = random_colors(4)
+    colors = constant_colors(3)
 
     # Show area outside image boundaries.
     height, width = image.shape[:2]
