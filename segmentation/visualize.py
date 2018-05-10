@@ -160,7 +160,7 @@ def draw_instances(image, boxes, masks, class_ids, class_names,
     """
 
     # Number of instances
-    N = 4#boxes.shape[0]
+    N = boxes.shape[0]
     if not N:
         print("\n*** No instances to display *** \n")
     else:
@@ -170,7 +170,7 @@ def draw_instances(image, boxes, masks, class_ids, class_names,
     figure, ax = plt.subplots(1, figsize=figsize)
 
     # Generate random colors
-    colors = random_colors(N)
+    colors = random_colors(4)
 
     # Show area outside image boundaries.
     height, width = image.shape[:2]
