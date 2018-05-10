@@ -160,7 +160,7 @@ def draw_instances(image, boxes, masks, class_ids, class_names,
     """
 
     # Number of instances
-    N = boxes.shape[0]
+    N = 4#boxes.shape[0]
     if not N:
         print("\n*** No instances to display *** \n")
     else:
@@ -181,7 +181,16 @@ def draw_instances(image, boxes, masks, class_ids, class_names,
 
     masked_image = image.astype(np.uint32).copy()
     for i in range(N):
-        color = colors[i]
+        #color = colors[i]
+        class_id = class_ids[i]
+        label = class_names[class_id]
+        if label=="chair":
+            color = colors[0]
+        elif label == "potted plant":
+            color = colors[1]
+        else:
+            print("Ignoring object of type",label)
+            continue
 
         # Bounding box
         if not np.any(boxes[i]):
